@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "es5",
+    "lib": ["ES2018", "DOM"],
+
+    /* Modules */
+    "module": "commonjs",
+
+    /* Emit */
+    "outDir": "./dist",
+
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strict": true,
+    "noImplicitAny": true,
+
+    /* Completeness */
+    "skipLibCheck": true
+  },
+  "exclude": ["node_modules", "./dist", "spec"]
+}
