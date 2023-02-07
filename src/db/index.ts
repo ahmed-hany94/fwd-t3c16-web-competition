@@ -1,4 +1,4 @@
-import { Pool, PoolClient, PoolConfig, QueryResult, QueryResultRow } from 'pg';
+import { Pool, PoolClient, PoolConfig, QueryResult, QueryResultRow } from "pg";
 
 import {
   DB_PORT,
@@ -7,8 +7,8 @@ import {
   POSTGRES_HOST,
   POSTGRES_PASSWORD,
   POSTGRES_USER,
-  ENV
-} from '../modules/constants';
+  ENV,
+} from "../common/constants";
 
 const getConnection = async function (): Promise<PoolClient> {
   try {
@@ -17,8 +17,8 @@ const getConnection = async function (): Promise<PoolClient> {
       user: POSTGRES_USER,
       password: POSTGRES_PASSWORD,
       database:
-        ENV!.trim() !== 'test' ? POSTGRES_DB_NAME : POSTGRES_TEST_DB_NAME,
-      port: parseInt(DB_PORT || '5432')
+        ENV!.trim() !== "test" ? POSTGRES_DB_NAME : POSTGRES_TEST_DB_NAME,
+      port: parseInt(DB_PORT || "5432"),
     } as PoolConfig);
 
     const client = await pool.connect();
@@ -32,11 +32,11 @@ const getConnection = async function (): Promise<PoolClient> {
 const connect_db = async function (): Promise<Boolean> {
   const client = await getConnection();
   if (Object.keys(client).length) {
-    console.log('Database Initialized Successfully');
+    console.log("Database Initialized Successfully");
     client.release();
     return true;
   } else {
-    console.log('Database Initialization failed');
+    console.log("Database Initialization failed");
     return false;
   }
 };

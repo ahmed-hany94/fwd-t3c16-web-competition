@@ -25,7 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = void 0;
 const express_1 = __importStar(require("express"));
-const constants_1 = require("./modules/constants");
+const constants_1 = require("./common/constants");
 const db_1 = require("./db");
 const routes_1 = require("./routes");
 // Connect to database
@@ -38,7 +38,7 @@ const routes_1 = require("./routes");
 const app = (0, express_1.default)();
 exports.app = app;
 app.use((0, express_1.json)());
-app.use('/api', routes_1.router);
+app.use("/api", routes_1.router);
 app.listen(constants_1.PORT, function () {
     console.log(`Listening on http://localhost:${constants_1.PORT}`);
 });

@@ -92,3 +92,25 @@ _Based on the requirements below_
 - GET /users/:userID => get user's account (show functionality)
 
 ---
+
+## Directory Structure:
+
+- build: created automatically and will contain our build file.
+- docker:
+- docs:
+- migrations:
+- spec:
+- src: contains all of the source files
+  - common: contains files that are common
+    - constants.js
+  - db: contains all the database functions
+  - models: contains models for our schema
+  - routes: contains all the routes declarations
+    - controllers: contains the control functions of our routes
+  - services: contains database relationships that doesn't fall in our models cleanly
+  - tests: contains app & database tests
+- .env
+- .gitignore
+- database.json
+- docker-compose.yml
+- tsconfig.json

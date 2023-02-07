@@ -1,9 +1,8 @@
-import express, { Request, Response, Router } from 'express';
+import express, { Router } from "express";
+import { createHello } from "./controllers/helloCtrl";
 
 const router: Router = express.Router();
 
-router.route('/').get((_, res: Response) => {
-  res.send('<h1>hello, world!</h1>');
-});
+router.route("/").get(createHello);
 
 export { router };
