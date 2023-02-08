@@ -8,4 +8,6 @@ const express_1 = __importDefault(require("express"));
 const helloCtrl_1 = require("./controllers/helloCtrl");
 const router = express_1.default.Router();
 exports.router = router;
-router.route("/").get(helloCtrl_1.createHello);
+// **********************************************
+// Routes Declarations
+router.route('/').get(helloCtrl_1.createHello);

@@ -28,17 +28,25 @@ const express_1 = __importStar(require("express"));
 const constants_1 = require("./common/constants");
 const db_1 = require("./db");
 const routes_1 = require("./routes");
+// **********************************************
 // Connect to database
 (async function () {
     if ((await (0, db_1.connect_db)()) === false) {
         process.exit(process.exitCode);
     }
 })();
+// **********************************************
 // Setup express server
 const app = (0, express_1.default)();
 exports.app = app;
+// **********************************************
+// Setup express middleware
 app.use((0, express_1.json)());
-app.use("/api", routes_1.router);
+// **********************************************
+// Setup express router
+app.use('/api', routes_1.router);
+// **********************************************
+// Express Server Listen
 app.listen(constants_1.PORT, function () {
     console.log(`Listening on http://localhost:${constants_1.PORT}`);
 });
