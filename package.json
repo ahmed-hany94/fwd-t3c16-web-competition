@@ -4,9 +4,9 @@
   "description": "",
   "main": "src/server.ts",
   "scripts": {
-    "start": "node build/server.js",
+    "start": "nodemon src/server.ts",
     "watch": "tsc-watch --esModuleInterop src/server.ts --outDir ./dist --onSuccess \"node ./dist/server.js\"",
-    "test": "SET ENV=test && db-migrate --env test up && jasmine-ts && db-migrate db:drop streaming-test",
+    "test": "yarn run build && SET ENV=test && db-migrate --env test up && jasmine-ts && db-migrate db:drop streaming-test",
     "build": "npx tsc",
     "tsc": "tsc",
     "migrate": "db-migrate --env test up && db-migrate up",
@@ -24,7 +24,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "nodemon": "^2.0.16",
+    "nodemon": "^2.0.20",
     "pg": "^8.5.1",
     "typescript": "^4.1.3"
   },
@@ -46,7 +46,7 @@
     "jasmine-ts": "^0.3.0",
     "prettier": "^2.8.1",
     "supertest": "^6.2.4",
-    "ts-node": "^9.1.1",
+    "ts-node": "^10.9.1",
     "tsc-watch": "^4.2.9"
   }
 }

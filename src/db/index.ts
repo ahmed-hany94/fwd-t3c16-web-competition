@@ -11,8 +11,9 @@ import {
 } from '../common/constants';
 
 // **********************************************
-/** Acquire a db connection - we use this internally
- * everytime we make a database transaction.
+/** Acquire a db connection - we use this
+ * internally everytime we make a database
+ * transaction.
  */
 const getConnection = async function (): Promise<PoolClient> {
   try {
@@ -34,6 +35,13 @@ const getConnection = async function (): Promise<PoolClient> {
 };
 
 // **********************************************
+/** Releasing the database client
+ */
+const releaseClient = async function (client: PoolClient) {
+  client.release();
+};
+
+// **********************************************
 /** Database connection test - we use this once at
  *  the beginning of the program execution to check
  *  that we have a working database connection.
@@ -51,121 +59,53 @@ const connect_db = async function (): Promise<boolean> {
 };
 
 // **********************************************
-/** Select Query with parameters
+/** `execute` function will perform parameterized
+ * query regardless of whether there are parameters.
+ * It accepts a generic structure that will be
+ * our Object Schema.
+ * It returns data if specified in the query
+ * or a message to indicate whether the
+ * operation succeeded or failed.
  */
-const selectOneQuery = async function (query: string, params: string[]) {
-  try {
-    const client = await getConnection();
-    return client
-      .query(query, params)
-      .then((res) => {
-        const rows = res.rows;
 
-        if (rows.length === 0)
-          throw Error('Select is successful but results are empty');
-
-        releaseClient(client);
-        return rows[0];
-      })
-      .catch((err) => {
-        console.log(err);
-        releaseClient(client);
-      });
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-// **********************************************
-/** Select Query returning the table contents
- */
-const selectAllQuery = async function (query: string) {
-  try {
-    const client = await getConnection();
-    return client
-      .query(query)
-      .then((res) => {
-        const rows = res.rows;
-
-        if (rows.length === 0)
-          throw Error('Select is successful but results are empty');
-
-        releaseClient(client);
-        return rows;
-      })
-      .catch((err) => {
-        console.log(err);
-        releaseClient(client);
-      });
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-// **********************************************
-/** Insert Query with parameters
- */
-const insertQuery = async function (
+// Overload signatures to accept params or none
+async function execute<T>(
   query: string,
-  params: string[]
-): Promise<string> {
-  try {
-    const client = await getConnection();
-    return client
-      .query(query, params)
-      .then(() => {
-        releaseClient(client);
-        return 'Insert was successful';
-      })
-      .catch((err) => {
-        if (err.code === '23505') {
-          releaseClient(client);
-          return `Insert Failed - Unique Violation: ${err.message}`;
-        } else {
-          releaseClient(client);
-          return `Insert Failed: ${err.message}`;
-        }
-      });
-  } catch (err) {
-    return `Insert Failed: ${err}`;
-  }
-};
+  params?: (number | string)[]
+): Promise<T[]>;
+async function execute<T>(
+  query: string,
+  params: (number | string)[]
+): Promise<T[]>;
 
-// **********************************************
-/** Truncate Query
- */
-const truncateQuery = async function (query: string): Promise<string> {
-  try {
-    const client = await getConnection();
-    return client
-      .query(query)
-      .then(() => {
-        releaseClient(client);
-        return 'Truncation Success';
-      })
-      .catch((err) => {
-        console.log(err.message);
-        releaseClient(client);
-        return 'Truncation Error';
-      });
-  } catch (err) {
-    console.log(err);
-    return 'Truncation Error';
-  }
-};
+// implemntation
+async function execute<T>(query: string, params?: (number | string)[]) {
+  const client = await getConnection();
+  return client
+    .query<T[]>(query, params)
+    .then((res) => {
+      releaseClient(client);
 
-// **********************************************
-/** Releasing the database client
- */
-const releaseClient = async function (client: PoolClient) {
-  client.release();
-};
+      if (res.rows.length !== 0) {
+        return res.rows as T[];
+      } else if (res.rows.length === 0 && res.command === 'SELECT') {
+        return [
+          { message: `${res.command} was successful, but return no results.` }
+        ];
+      } else {
+        return [{ message: `${res.command} was successful.` }];
+      }
+    })
+    .catch((err) => {
+      if (err.code === '23505') {
+        releaseClient(client);
+        return [`Error: ${err.message}`];
+      } else {
+        console.log(err);
+        releaseClient(client);
+        return [{ error: `Error: database operation failed.` }];
+      }
+    });
+}
 
-export {
-  connect_db,
-  getConnection,
-  insertQuery,
-  selectAllQuery,
-  selectOneQuery,
-  truncateQuery
-};
+export { connect_db, execute };

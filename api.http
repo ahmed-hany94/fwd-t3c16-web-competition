@@ -1,0 +1,114 @@
+@userID1 = ab024a16-459e-4d4f-965e-4df2ba0f94d7
+@userID2 =
+@movieID1 = edf3c291-db5c-4290-8bbb-c353338283f1
+@movieID2 = e75f0b02-7573-483b-b61e-8fce1d07df52
+@movieID3 = 8a2f904d-d104-43ec-90a2-3c2649fb519b
+####################################################################
+# User SignUp
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+    "email": "t@test.com",
+    "password": "t_passwd"
+}
+
+####################################################################
+# Get All Users
+GET http://localhost:3000/api/users
+Content-Type: application/json
+
+####################################################################
+# Get User By ID
+GET http://localhost:3000/api/users/{{userID1}}
+Content-Type: application/json
+
+####################################################################
+# Update User
+PUT http://localhost:3000/api/users/{{userID1}}
+Content-Type: application/json
+
+{
+    "email": "g@test.com",
+    "password": "g_passwd"
+}
+
+####################################################################
+# Delete User
+DELETE http://localhost:3000/api/users/{{userID1}}
+Content-Type: application/json
+
+####################################################################  
+# Create Movie
+POST http://localhost:3000/api/movies
+Content-Type: application/json
+
+{
+  "name": "Fast 5",
+  "release_date": "2019-09-20"
+}
+
+####################################################################
+#  Get Movies
+GET http://localhost:3000/api/movies
+Content-Type: application/json
+
+
+####################################################################
+# Get Movie by ID
+GET http://localhost:3000/api/movies/{{movieID1}}
+Content-Type: application/json
+
+####################################################################
+# Update Movie
+PUT http://localhost:3000/api/movies/{{movieID2}}
+Content-Type: application/json
+
+{
+    "name": "Avatar",
+    "release_date": "2022-12-15"
+}
+
+####################################################################
+# Delete Movie
+DELETE http://localhost:3000/api/movies/{{movieID1}}
+Content-Type: application/json
+
+####################################################################
+# Create Watch List
+POST http://localhost:3000/api/users/{{userID1}}/movies
+Content-Type: application/json
+
+{
+    "movies": [
+        {"movie_id": "{{movieID1}}"},
+        {"movie_id": "{{movieID2}}"}
+    ]
+}
+
+####################################################################
+# Get Watch List
+GET http://localhost:3000/api/users/{{userID1}}/movies
+Content-Type: application/json
+
+####################################################################
+# Get Movie in Watch List
+GET http://localhost:3000/api/users/{{userID1}}/movies/{{movieID1}}
+Content-Type: application/json
+
+####################################################################
+# Append Watch List
+PUT http://localhost:3000/api/users/{{userID1}}/movies/{{movieID3}}
+Content-Type: application/json
+
+####################################################################
+# Delete Watch List
+DELETE  http://localhost:3000/api/users/{{userID1}}/movies
+Content-Type: application/json
+
+####################################################################
+# Delete a Movie From Watch List
+DELETE  http://localhost:3000/api/users/{{userID1}}/movies/{{movieID3}}
+Content-Type: application/json
+
+####################################################################

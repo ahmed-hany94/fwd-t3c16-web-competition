@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.truncateQuery = exports.selectOneQuery = exports.selectAllQuery = exports.insertQuery = exports.getConnection = exports.connect_db = void 0;
+exports.execute = exports.connect_db = void 0;
 const pg_1 = require("pg");
 const constants_1 = require("../common/constants");
 // **********************************************
-/** Acquire a db connection - we use this internally
- * everytime we make a database transaction.
+/** Acquire a db connection - we use this
+ * internally everytime we make a database
+ * transaction.
  */
 const getConnection = async function () {
     try {
@@ -24,7 +25,12 @@ const getConnection = async function () {
         return {};
     }
 };
-exports.getConnection = getConnection;
+// **********************************************
+/** Releasing the database client
+ */
+const releaseClient = async function (client) {
+    client.release();
+};
 // **********************************************
 /** Database connection test - we use this once at
  *  the beginning of the program execution to check
@@ -43,111 +49,35 @@ const connect_db = async function () {
     }
 };
 exports.connect_db = connect_db;
-// **********************************************
-/** Select Query with parameters
- */
-const selectOneQuery = async function (query, params) {
-    try {
-        const client = await getConnection();
-        return client
-            .query(query, params)
-            .then((res) => {
-            const rows = res.rows;
-            if (rows.length === 0)
-                throw Error('Select is successful but results are empty');
+// implemntation
+async function execute(query, params) {
+    const client = await getConnection();
+    return client
+        .query(query, params)
+        .then((res) => {
+        releaseClient(client);
+        if (res.rows.length !== 0) {
+            return res.rows;
+        }
+        else if (res.rows.length === 0 && res.command === 'SELECT') {
+            return [
+                { message: `${res.command} was successful, but return no results.` }
+            ];
+        }
+        else {
+            return [{ message: `${res.command} was successful.` }];
+        }
+    })
+        .catch((err) => {
+        if (err.code === '23505') {
             releaseClient(client);
-            return rows[0];
-        })
-            .catch((err) => {
+            return [`Error: ${err.message}`];
+        }
+        else {
             console.log(err);
             releaseClient(client);
-        });
-    }
-    catch (err) {
-        console.log(err);
-    }
-};
-exports.selectOneQuery = selectOneQuery;
-// **********************************************
-/** Select Query returning the table contents
- */
-const selectAllQuery = async function (query) {
-    try {
-        const client = await getConnection();
-        return client
-            .query(query)
-            .then((res) => {
-            const rows = res.rows;
-            if (rows.length === 0)
-                throw Error('Select is successful but results are empty');
-            releaseClient(client);
-            return rows;
-        })
-            .catch((err) => {
-            console.log(err);
-            releaseClient(client);
-        });
-    }
-    catch (err) {
-        console.log(err);
-    }
-};
-exports.selectAllQuery = selectAllQuery;
-// **********************************************
-/** Insert Query with parameters
- */
-const insertQuery = async function (query, params) {
-    try {
-        const client = await getConnection();
-        return client
-            .query(query, params)
-            .then(() => {
-            releaseClient(client);
-            return 'Insert was successful';
-        })
-            .catch((err) => {
-            if (err.code === '23505') {
-                releaseClient(client);
-                return `Insert Failed - Unique Violation: ${err.message}`;
-            }
-            else {
-                releaseClient(client);
-                return `Insert Failed: ${err.message}`;
-            }
-        });
-    }
-    catch (err) {
-        return `Insert Failed: ${err}`;
-    }
-};
-exports.insertQuery = insertQuery;
-// **********************************************
-/** Truncate Query
- */
-const truncateQuery = async function (query) {
-    try {
-        const client = await getConnection();
-        return client
-            .query(query)
-            .then(() => {
-            releaseClient(client);
-            return 'Truncation Success';
-        })
-            .catch((err) => {
-            console.log(err.message);
-            releaseClient(client);
-            return 'Truncation Error';
-        });
-    }
-    catch (err) {
-        console.log(err);
-        return 'Truncation Error';
-    }
-};
-exports.truncateQuery = truncateQuery;
-// **********************************************
-/** Releasing the database client
- */
-const releaseClient = async function (client) {
-    client.release();
-};
+            return [{ error: `Error: database operation failed.` }];
+        }
+    });
+}
+exports.execute = execute;
